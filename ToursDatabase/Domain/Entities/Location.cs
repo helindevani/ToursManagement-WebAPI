@@ -21,6 +21,11 @@ namespace ToursDatabase.Domain.Entities
         [Required]
         public double Longitude { get; set; }
 
+        [Required]
+        public string Description { get; set; }
+
+        public List<Stop>? Stops { get; set; }
+
         [ForeignKey("Tour")]
         public Guid TourId { get; set; }
 

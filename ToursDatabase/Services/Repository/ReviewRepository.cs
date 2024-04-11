@@ -54,10 +54,6 @@ namespace ToursDatabase.Services.Repository
                 {
                     TourId = review.Tour.TourId,
                     Name = review.Tour.Name,
-                    StartingLatitude = review.Tour.StartingLatitude,
-                    StartingLongitude = review.Tour.StartingLongitude,
-                    StartLocationAddress = review.Tour.StartLocationAddress,
-                    StartLocationDescription = review.Tour.StartLocationDescription,
                     Duration = review.Tour.Duration,
                     MaxGroupSize = review.Tour.MaxGroupSize,
                     Difficulty = review.Tour.Difficulty.ToString(),

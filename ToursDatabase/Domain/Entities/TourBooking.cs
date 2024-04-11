@@ -5,7 +5,7 @@ using ToursDatabase.ServiceContracts;
 
 namespace ToursDatabase.Domain.Entities
 {
-    public class TourBooking:IAuditable
+    public class TourBooking : IAuditable
     {
         [Key]
         public Guid BookingID { get; set; } = Guid.NewGuid();
@@ -19,7 +19,6 @@ namespace ToursDatabase.Domain.Entities
         public Tour? Tour { get; set; } 
         public BookingStatus Status { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
-
         public DateTime UpdateDate { get; set; } = DateTime.UtcNow;
     }
 }

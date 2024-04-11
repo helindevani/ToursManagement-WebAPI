@@ -23,6 +23,7 @@ namespace ToursDatabase.DatabaseContext
         public virtual DbSet<Tour> Tours { get; set; }
         public virtual DbSet<Image> Images { get; set; }
         public virtual DbSet<TourBooking> TourBookings { get; set; }
+        public virtual DbSet<Stop> Stops { get; set; }
 
         public override int SaveChanges()
         {
@@ -83,33 +84,6 @@ namespace ToursDatabase.DatabaseContext
 
             modelBuilder.Entity<ApplicationRole>().HasData(roles);
 
-            //Configure Review-Tour relationship
-            modelBuilder.Entity<Review>()
-                .HasOne(r => r.Tour)
-                .WithMany(t => t.Reviews)
-                .HasForeignKey(r => r.TourId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            // Configure Location-Tour relationship
-            modelBuilder.Entity<Location>()
-                .HasOne(l => l.Tour)
-                .WithMany(t => t.Locations)
-                .HasForeignKey(l => l.TourId)
-                .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<TourBooking>()
-               .HasOne(r => r.Tour)
-               .WithMany()
-               .HasForeignKey(r => r.TourId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-            modelBuilder.Entity<Image>()
-               .HasOne(r => r.Tour)
-               .WithMany(i => i.Images)
-               .HasForeignKey(r => r.TourId)
-               .OnDelete(DeleteBehavior.Cascade);
-
-            // Seed data for Review
             modelBuilder.Entity<Review>().HasData(
                 new Review
                 {
@@ -136,11 +110,12 @@ namespace ToursDatabase.DatabaseContext
             modelBuilder.Entity<Location>().HasData(
                 new Location
                 {
-                    LocationId = Guid.NewGuid(),
-                    Name = "Empire State Building Observatory",
+                    LocationId = Guid.Parse("7209F8DF-5D18-4279-A03D-707624FB86BB"),
+                    Name = "New York State Building Observatory",
                     Address = "123 Street, City, Country",
                     Latitude = 40.748817,
                     Longitude = -73.985428,
+                    Description = "that is second street of place",
                     TourId = Guid.Parse("9C0CF771-2A31-44C9-ADFD-B08C30397392"),
                     CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
@@ -153,6 +128,7 @@ namespace ToursDatabase.DatabaseContext
                     Address = "456 Road, City, Country",
                     Latitude = 40.7128,
                     Longitude = -74.0060,
+                    Description = "that is first street of place",
                     TourId = Guid.Parse("9C0CF771-2A31-44C9-ADFD-B08C30397392"),
                     CreateDate = DateTime.Now,
                     UpdateDate = DateTime.Now,
@@ -165,19 +141,21 @@ namespace ToursDatabase.DatabaseContext
                  new Tour()
                  {
                      TourId = Guid.Parse("9C0CF771-2A31-44C9-ADFD-B08C30397392"),
+                     TourDate = DateTime.UtcNow,
+                     TourEndDate = DateTime.UtcNow,
                      Name = "NewYork Tour",
-                     StartingLatitude = 40.7128,
-                     StartingLongitude = -74.0060,
-                     StartLocationAddress = "123 Main St, New York, NY",
-                     StartLocationDescription = "This is the starting point of the tour.",
+                     StartTourLocation="Ahmedabad",
+                     FirstLocation="Delhi",
+                     LastLocation="Mumbai",
                      Duration = 7,
                      MaxGroupSize = 20,
                      Difficulty = DifficultyType.Medium,
                      RatingsAverage = 4.5,
                      RatingsQuantity = 50,
                      Price = 100.00,
-                     Description = "This is a sample tour description.",
                      SecretTour = false,
+                     Description = "This Is Compelete Trip About Newyork",
+                     Id = Guid.Parse("BFA80C03-5E0B-4D76-A802-D8CE6D2C7587"),
                      CreateDate = DateTime.Now,
                      UpdateDate = DateTime.Now,
 
@@ -212,6 +190,17 @@ namespace ToursDatabase.DatabaseContext
                         TourId = Guid.Parse("9C0CF771-2A31-44C9-ADFD-B08C30397392"),
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
+                    }
+                );
+
+                modelBuilder.Entity<Stop>().HasData(
+                    new Stop
+                    {
+                        StopId = Guid.NewGuid(),
+                        Order = 2,
+                        LocationId = Guid.Parse("7209F8DF-5D18-4279-A03D-707624FB86BB"),
+                        ArrivalTime = DateTime.Now,
+                        DepartureTime = DateTime.Now.AddHours(10),
                     }
                 );
 

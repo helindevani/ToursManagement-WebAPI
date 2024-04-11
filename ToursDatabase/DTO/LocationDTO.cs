@@ -1,4 +1,6 @@
-﻿namespace ToursDatabase.DTO
+﻿using ToursDatabase.Domain.Entities;
+
+namespace ToursDatabase.DTO
 {
     public class LocationDTO
     {
@@ -7,6 +9,8 @@
         public string Address { get; set; }
         public double Latitude { get; set; }
         public double Longitude { get; set; }
+        public string Description { get; set; }
+        public List<Stop>? Stops { get; set; }
         public Guid TourId { get; set; }
         public DateTime CreateDate { get; set; } = DateTime.UtcNow;
         public DateTime UpdateDate { get; set; } = DateTime.UtcNow;

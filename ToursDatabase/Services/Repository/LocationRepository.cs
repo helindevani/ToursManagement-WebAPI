@@ -17,7 +17,8 @@ namespace ToursDatabase.Services.Repository
 
         public async Task<IEnumerable<LocationDTO>> GetAllLocationsAsync()
         {
-            var locations = await _context.Locations.Include(t => t.Tour).ToListAsync();
+            var locations = await _context.Locations.Include(s=>s.Stops).Include(t => t.Tour).ToListAsync();
+
             return locations.Select(location => new LocationDTO
             {
                 LocationId = location.LocationId,
@@ -25,6 +26,8 @@ namespace ToursDatabase.Services.Repository
                 Address = location.Address,
                 Latitude = location.Latitude,
                 Longitude = location.Longitude,
+                Description = location.Description,
+                Stops = location.Stops,
                 TourId = location.TourId,
                 CreateDate = location.CreateDate,
                 UpdateDate = location.UpdateDate,
@@ -66,8 +69,17 @@ namespace ToursDatabase.Services.Repository
             existingLocation.Address = locationDTO.Address;
             existingLocation.Latitude = locationDTO.Latitude;
             existingLocation.Longitude = locationDTO.Longitude;
+            existingLocation.Description = locationDTO.Description;
             existingLocation.TourId = locationDTO.TourId;
             existingLocation.UpdateDate = locationDTO.UpdateDate;
+            existingLocation.Stops = locationDTO.Stops?.Select(stop => new Stop
+            {
+                StopId = stop.StopId,
+                ArrivalTime = stop.ArrivalTime,
+                DepartureTime = stop.DepartureTime,
+                LocationId = locationDTO.LocationId,
+                Order = stop.Order
+            }).ToList();
 
             await _context.SaveChangesAsync();
 
@@ -86,6 +98,15 @@ namespace ToursDatabase.Services.Repository
                 TourId = locationDTO.TourId,
                 CreateDate = locationDTO.CreateDate,
                 UpdateDate = locationDTO.UpdateDate,
+                Description=locationDTO.Description,
+                Stops = locationDTO.Stops?.Select(stop => new Stop
+                {
+                    StopId=stop.StopId,
+                    ArrivalTime=stop.ArrivalTime,
+                    DepartureTime=stop.DepartureTime,
+                    LocationId=locationDTO.LocationId,
+                    Order=stop.Order
+                }).ToList()
             };
 
             _context.Locations.Add(location);

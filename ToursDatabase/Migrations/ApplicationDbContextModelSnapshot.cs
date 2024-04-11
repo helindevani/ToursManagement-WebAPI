@@ -167,15 +167,15 @@ namespace ToursDatabase.Migrations
                     b.HasData(
                         new
                         {
-                            ImageId = new Guid("b3307032-02df-46c4-8847-dceb35615c87"),
-                            CreateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5569),
+                            ImageId = new Guid("6b031730-9f77-4d70-b97e-0e6acebd00fc"),
+                            CreateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6172),
                             FileDescription = "An example image",
                             FileExtension = ".jpg",
                             FileName = "example.jpg",
                             FilePath = "/Images/example.jpg",
                             FileSizeInBytes = 1024L,
                             TourId = new Guid("9c0cf771-2a31-44c9-adfd-b08c30397392"),
-                            UpdateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5570)
+                            UpdateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6172)
                         });
                 });
 
@@ -191,6 +191,10 @@ namespace ToursDatabase.Migrations
 
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<double>("Latitude")
                         .HasColumnType("float");
@@ -217,25 +221,27 @@ namespace ToursDatabase.Migrations
                     b.HasData(
                         new
                         {
-                            LocationId = new Guid("f69c9da9-0b38-4e66-8292-20b5963615ae"),
+                            LocationId = new Guid("7209f8df-5d18-4279-a03d-707624fb86bb"),
                             Address = "123 Street, City, Country",
-                            CreateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5445),
+                            CreateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6047),
+                            Description = "that is second street of place",
                             Latitude = 40.748817000000003,
                             Longitude = -73.985427999999999,
-                            Name = "Empire State Building Observatory",
+                            Name = "New York State Building Observatory",
                             TourId = new Guid("9c0cf771-2a31-44c9-adfd-b08c30397392"),
-                            UpdateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5447)
+                            UpdateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6048)
                         },
                         new
                         {
-                            LocationId = new Guid("1c041a75-545c-4497-b17c-a485b20e2353"),
+                            LocationId = new Guid("f6d553b4-6981-410a-a9f3-29c2ab1d3e86"),
                             Address = "456 Road, City, Country",
-                            CreateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5454),
+                            CreateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6065),
+                            Description = "that is first street of place",
                             Latitude = 40.712800000000001,
                             Longitude = -74.006,
                             Name = "NYC Cruise by Circle Line",
                             TourId = new Guid("9c0cf771-2a31-44c9-adfd-b08c30397392"),
-                            UpdateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5455)
+                            UpdateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6066)
                         });
                 });
 
@@ -270,21 +276,61 @@ namespace ToursDatabase.Migrations
                     b.HasData(
                         new
                         {
-                            ReviewId = new Guid("1aa7a96e-4b37-4fc2-ac14-a340759fc47f"),
-                            CreateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5165),
+                            ReviewId = new Guid("ee6b810b-4573-4f2b-9fc3-d3d652703a21"),
+                            CreateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(5796),
                             Rating = 4.5,
                             ReviewDetail = "Great tour!",
                             TourId = new Guid("9c0cf771-2a31-44c9-adfd-b08c30397392"),
-                            UpdateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5178)
+                            UpdateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(5807)
                         },
                         new
                         {
-                            ReviewId = new Guid("a1235bb0-acce-42ad-9a96-286797122626"),
-                            CreateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5200),
+                            ReviewId = new Guid("334874f8-5ded-4a08-81ea-a551192f36de"),
+                            CreateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(5813),
                             Rating = 5.0,
                             ReviewDetail = "Amazing experience!",
                             TourId = new Guid("9c0cf771-2a31-44c9-adfd-b08c30397392"),
-                            UpdateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5201)
+                            UpdateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(5813)
+                        });
+                });
+
+            modelBuilder.Entity("ToursDatabase.Domain.Entities.Stop", b =>
+                {
+                    b.Property<Guid>("StopId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("ArrivalTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("DepartureTime")
+                        .HasColumnType("datetime2");
+
+                    b.Property<Guid>("LocationId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<int>("Order")
+                        .HasColumnType("int");
+
+                    b.Property<Guid?>("TourId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("StopId");
+
+                    b.HasIndex("LocationId");
+
+                    b.HasIndex("TourId");
+
+                    b.ToTable("Stops");
+
+                    b.HasData(
+                        new
+                        {
+                            StopId = new Guid("feec0bca-5768-4db5-9f9a-b6d897247b1f"),
+                            ArrivalTime = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6193),
+                            DepartureTime = new DateTime(2024, 4, 11, 4, 57, 49, 336, DateTimeKind.Local).AddTicks(6194),
+                            LocationId = new Guid("7209f8df-5d18-4279-a03d-707624fb86bb"),
+                            Order = 2
                         });
                 });
 
@@ -307,6 +353,15 @@ namespace ToursDatabase.Migrations
                     b.Property<int>("Duration")
                         .HasColumnType("int");
 
+                    b.Property<string>("FirstLocation")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<Guid>("Id")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("LastLocation")
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<int>("MaxGroupSize")
                         .HasColumnType("int");
 
@@ -326,24 +381,26 @@ namespace ToursDatabase.Migrations
                     b.Property<bool>("SecretTour")
                         .HasColumnType("bit");
 
-                    b.Property<string>("StartLocationAddress")
+                    b.Property<string>("StartTourLocation")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("StartLocationDescription")
+                    b.Property<DateTime>("TourDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("TourEndDate")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<double>("StartingLatitude")
-                        .HasColumnType("float");
-
-                    b.Property<double>("StartingLongitude")
-                        .HasColumnType("float");
+                        .HasColumnType("datetime2");
 
                     b.Property<DateTime>("UpdateDate")
                         .HasColumnType("datetime2");
 
+                    b.Property<Guid?>("UserId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.HasKey("TourId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Tours");
 
@@ -351,21 +408,23 @@ namespace ToursDatabase.Migrations
                         new
                         {
                             TourId = new Guid("9c0cf771-2a31-44c9-adfd-b08c30397392"),
-                            CreateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5501),
-                            Description = "This is a sample tour description.",
+                            CreateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6111),
+                            Description = "This Is Compelete Trip About Newyork",
                             Difficulty = 1,
                             Duration = 7,
+                            FirstLocation = "Delhi",
+                            Id = new Guid("bfa80c03-5e0b-4d76-a802-d8ce6d2c7587"),
+                            LastLocation = "Mumbai",
                             MaxGroupSize = 20,
                             Name = "NewYork Tour",
                             Price = 100.0,
                             RatingsAverage = 4.5,
                             RatingsQuantity = 50,
                             SecretTour = false,
-                            StartLocationAddress = "123 Main St, New York, NY",
-                            StartLocationDescription = "This is the starting point of the tour.",
-                            StartingLatitude = 40.712800000000001,
-                            StartingLongitude = -74.006,
-                            UpdateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5502)
+                            StartTourLocation = "Ahmedabad",
+                            TourDate = new DateTime(2024, 4, 10, 13, 27, 49, 336, DateTimeKind.Utc).AddTicks(6094),
+                            TourEndDate = new DateTime(2024, 4, 10, 13, 27, 49, 336, DateTimeKind.Utc).AddTicks(6095),
+                            UpdateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6112)
                         });
                 });
 
@@ -411,14 +470,14 @@ namespace ToursDatabase.Migrations
                         new
                         {
                             BookingID = new Guid("ce12bfbd-465e-43a5-8576-65d5f1fe1e16"),
-                            BookingDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5533),
-                            CreateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5538),
+                            BookingDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6141),
+                            CreateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6146),
                             CustomerEmail = "john@example.com",
                             CustomerName = "John Doe",
                             Status = 1,
-                            TourDate = new DateTime(2024, 4, 13, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5534),
+                            TourDate = new DateTime(2024, 4, 17, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6142),
                             TourId = new Guid("9c0cf771-2a31-44c9-adfd-b08c30397392"),
-                            UpdateDate = new DateTime(2024, 4, 6, 11, 45, 32, 261, DateTimeKind.Local).AddTicks(5539)
+                            UpdateDate = new DateTime(2024, 4, 10, 18, 57, 49, 336, DateTimeKind.Local).AddTicks(6146)
                         });
                 });
 
@@ -619,6 +678,30 @@ namespace ToursDatabase.Migrations
                     b.Navigation("Tour");
                 });
 
+            modelBuilder.Entity("ToursDatabase.Domain.Entities.Stop", b =>
+                {
+                    b.HasOne("ToursDatabase.Domain.Entities.Location", "Location")
+                        .WithMany("Stops")
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ToursDatabase.Domain.Entities.Tour", null)
+                        .WithMany("Stops")
+                        .HasForeignKey("TourId");
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("ToursDatabase.Domain.Entities.Tour", b =>
+                {
+                    b.HasOne("ToursDatabase.Domain.Identity.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ToursDatabase.Domain.Entities.TourBooking", b =>
                 {
                     b.HasOne("ToursDatabase.Domain.Entities.Tour", "Tour")
@@ -630,6 +713,11 @@ namespace ToursDatabase.Migrations
                     b.Navigation("Tour");
                 });
 
+            modelBuilder.Entity("ToursDatabase.Domain.Entities.Location", b =>
+                {
+                    b.Navigation("Stops");
+                });
+
             modelBuilder.Entity("ToursDatabase.Domain.Entities.Tour", b =>
                 {
                     b.Navigation("Images");
@@ -637,6 +725,8 @@ namespace ToursDatabase.Migrations
                     b.Navigation("Locations");
 
                     b.Navigation("Reviews");
+
+                    b.Navigation("Stops");
                 });
 #pragma warning restore 612, 618
         }

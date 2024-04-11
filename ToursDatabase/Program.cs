@@ -58,6 +58,8 @@ builder.Services.AddTransient<ILocationRepository, LocationRepository>();
 builder.Services.AddTransient<IReviewRepository, ReviewRepository>();
 builder.Services.AddTransient<ITourBookingRepository, TourBookingRepository>();
 builder.Services.AddTransient<IImageRepository, ImageRepository>();
+builder.Services.AddTransient<IUserRepository, UserRepository>();
+builder.Services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
 
 //Jwt
 builder.Services.AddAuthentication(options=> {
@@ -80,7 +82,6 @@ builder.Services.AddAuthentication(options=> {
 
 
 builder.Services.AddAuthentication(options => { });
-
 
 
 var app = builder.Build();

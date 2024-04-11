@@ -1,8 +1,12 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 using ToursDatabase.DatabaseContext;
 using ToursDatabase.Domain.Entities;
+using ToursDatabase.Domain.Identity;
 using ToursDatabase.DTO;
 using ToursDatabase.Enums;
+using ToursDatabase.Migrations;
 using ToursDatabase.ServiceContracts.Repository;
 
 namespace ToursDatabase.Services.Repository
@@ -10,19 +14,55 @@ namespace ToursDatabase.Services.Repository
     public class TourRepository : ITourRepository
     {
         private readonly ApplicationDbContext _context;
+        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public TourRepository(ApplicationDbContext context)
+        public TourRepository(ApplicationDbContext context, UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor)
         {
             _context = context;
+            _userManager = userManager;
+            _httpContextAccessor = httpContextAccessor;
         }
 
-        public async Task<IEnumerable<TourDTO>> GetToursAsync()
+        public async Task<IEnumerable<TourDTO>> GetToursAsync(int? minRating, int? maxRating, string difficultyLevel, string sortBy, DateTime? startDate)
         {
             var tours = await _context.Tours
-                .Include(i=>i.Images)
+                .Include(i => i.Images)
                 .Include(t => t.Locations)
+                .ThenInclude(s=>s.Stops)
                 .ToListAsync();
 
+            if (startDate != null)
+            {
+                tours = (List<Tour>)tours.Where(t => t.TourDate >= startDate);
+            }
+
+            if (minRating != null)
+            {
+                tours = (List<Tour>)tours.Where(t => t.RatingsAverage >= minRating);
+            }
+            if (maxRating != null)
+            {
+                tours = (List<Tour>)tours.Where(t => (t.RatingsAverage <= maxRating));
+            }
+            if (!string.IsNullOrEmpty(difficultyLevel))
+            {
+                tours = tours.Where(t => string.Equals(t.Difficulty.ToString(), difficultyLevel, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+            if (!string.IsNullOrEmpty(sortBy))
+            {
+                switch (sortBy.ToLower())
+                {
+                    case "LowToHigh":
+                        tours = (List<Tour>)tours.OrderBy(t => t.Price);
+                        break;
+                    case "HighToLow":
+                        tours = (List<Tour>)tours.OrderByDescending(t => t.Price);
+                        break;
+                    default:
+                        break;
+                }
+            }
 
             var tourDTOs = new List<TourDTO>();
 
@@ -54,15 +94,17 @@ namespace ToursDatabase.Services.Repository
             {
                 throw new ArgumentException("Invalid difficulty value.");
             }
+            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
 
             var tour = new Tour
             {
                 TourId = tourDTO.TourId,
+                TourDate = tourDTO.TourDate,
+                TourEndDate = tourDTO.TourEndDate,
                 Name = tourDTO.Name,
-                StartingLatitude = tourDTO.StartingLatitude,
-                StartingLongitude = tourDTO.StartingLongitude,
-                StartLocationAddress = tourDTO.StartLocationAddress,
-                StartLocationDescription = tourDTO.StartLocationDescription,
+                StartTourLocation = tourDTO.StartTourLocation,
+                FirstLocation = tourDTO.FirstLocation,
+                LastLocation = tourDTO.LastLocation,
                 Duration = tourDTO.Duration,
                 MaxGroupSize = tourDTO.MaxGroupSize,
                 Difficulty = difficulty,
@@ -81,9 +123,19 @@ namespace ToursDatabase.Services.Repository
                     Latitude = location.Latitude,
                     Longitude = location.Longitude,
                     TourId = tourDTO.TourId,
+                    Description = location.Description,
                     CreateDate = location.CreateDate,
-                    UpdateDate = location.UpdateDate
-                }).ToList()
+                    UpdateDate = location.UpdateDate,
+                    Stops = location.Stops?.Select(stop => new Stop
+                    {
+                        StopId = stop.StopId,
+                        ArrivalTime = stop.ArrivalTime,
+                        DepartureTime = stop.DepartureTime,
+                        LocationId = location.LocationId,
+                        Order = stop.Order
+                    }).ToList()
+                }).ToList(),
+                Id = userId != null ? Guid.Parse(userId) : (Guid?)null
             };
 
             _context.Tours.Add(tour);
@@ -102,11 +154,12 @@ namespace ToursDatabase.Services.Repository
             if (existingTour == null)
                 return false;
 
+            existingTour.TourDate = tourDTO.TourDate;
+            existingTour.TourEndDate = tourDTO.TourEndDate;
+            existingTour.StartTourLocation = tourDTO.StartTourLocation;
+            existingTour.FirstLocation = tourDTO.FirstLocation;
+            existingTour.LastLocation = tourDTO.LastLocation;
             existingTour.Name = tourDTO.Name;
-            existingTour.StartingLatitude = tourDTO.StartingLatitude;
-            existingTour.StartingLongitude = tourDTO.StartingLongitude;
-            existingTour.StartLocationAddress = tourDTO.StartLocationAddress;
-            existingTour.StartLocationDescription = tourDTO.StartLocationDescription;
             existingTour.Duration = tourDTO.Duration;
             existingTour.MaxGroupSize = tourDTO.MaxGroupSize;
             existingTour.Difficulty = Enum.Parse<DifficultyType>(tourDTO.Difficulty);
@@ -145,17 +198,35 @@ namespace ToursDatabase.Services.Repository
                 .Where(r => r.TourId == tour.TourId)
                 .ToListAsync();
 
+            var firstLocation = await _context.Locations
+                .Where(location => location.TourId == tour.TourId)
+                .SelectMany(location => location.Stops)
+                .OrderBy(stop => stop.Order)
+                .Select(stop => stop.Location.Name)
+                .FirstOrDefaultAsync();
+
+            var lastLocation = await _context.Locations
+                .Where(location => location.TourId == tour.TourId)
+                .SelectMany(location => location.Stops)
+                .OrderByDescending(stop => stop.Order)
+                .Select(stop => stop.Location.Name)
+                .FirstOrDefaultAsync();
+
+            var createdperson= _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.Name);
+
+
             var ratingsAverage = reviews.Any() ? reviews.Average(r => r.Rating) : (double?)null;
             var ratingsQuantity = reviews.Count;
 
             return new TourDTO
             {
                 TourId = tour.TourId,
+                TourDate=tour.TourDate,
+                TourEndDate= tour.TourEndDate,
+                StartTourLocation= tour.StartTourLocation,
+                FirstLocation= firstLocation,
+                LastLocation= lastLocation,
                 Name = tour.Name,
-                StartingLatitude = tour.StartingLatitude,
-                StartingLongitude = tour.StartingLongitude,
-                StartLocationAddress = tour.StartLocationAddress,
-                StartLocationDescription = tour.StartLocationDescription,
                 Duration = tour.Duration,
                 MaxGroupSize = tour.MaxGroupSize,
                 Difficulty = tour.Difficulty.ToString(),
@@ -180,7 +251,16 @@ namespace ToursDatabase.Services.Repository
                     Latitude = location.Latitude,
                     Longitude = location.Longitude,
                     TourId = tour.TourId,
+                    Stops = location.Stops?.Select(stop => new Stop
+                    {
+                        StopId = stop.StopId,
+                        ArrivalTime = stop.ArrivalTime,
+                        DepartureTime = stop.DepartureTime,
+                        LocationId = location.LocationId,
+                        Order = stop.Order
+                    }).ToList()
                 }).ToList(),
+                CreatedBy=createdperson
             };
         }
     }

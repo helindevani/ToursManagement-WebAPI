@@ -29,36 +29,10 @@ namespace ToursDatabase.Controllers
         }
 
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<TourDTO>>> GetTours([FromQuery] int? minRating = null, [FromQuery] int? maxRating = null, [FromQuery] string difficultyLevel = null, [FromQuery] string sortBy = null)
+        public async Task<ActionResult<IEnumerable<TourDTO>>> GetTours([FromQuery] int? minRating = null, [FromQuery] int? maxRating = null, [FromQuery] string difficultyLevel = null, [FromQuery] string sortBy = null, [FromQuery] DateTime? startDate=null)
         {
-            var tours = await _tourRepository.GetToursAsync();
+            var tours = await _tourRepository.GetToursAsync(minRating, maxRating, difficultyLevel, sortBy, startDate);
 
-            if (minRating.HasValue)
-            {
-                tours = tours.Where(t => t.RatingsAverage >= minRating.Value);
-            }
-            if (maxRating.HasValue)
-            {
-                tours = tours.Where(t => t.RatingsAverage <= maxRating.Value);
-            }
-            if (!string.IsNullOrEmpty(difficultyLevel))
-            {
-                tours = tours.Where(t => t.Difficulty.Equals(difficultyLevel, StringComparison.OrdinalIgnoreCase));
-            }
-            if (!string.IsNullOrEmpty(sortBy))
-            {
-                switch (sortBy.ToLower())
-                {
-                    case "LowToHigh":
-                        tours = tours.OrderBy(t => t.Price);
-                        break;
-                    case "HighToLow":
-                        tours = tours.OrderByDescending(t => t.Price);
-                        break;
-                    default:
-                        break;
-                }
-            }
             return Ok(tours);
         }
 
